@@ -9,12 +9,12 @@ import (
 )
 
 func main() {
-	channel := make(chan struct{})
+	channel := make(chan *struct{})
 
 	m := http.NewServeMux()
 	m.HandleFunc("/shutdown", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("finish server!!!")
-		close(channel)
+		channel <- nil
 	})
 	m.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
 	})
@@ -29,15 +29,15 @@ func main() {
 	}()
 
 	go func() {
-		exec.Command("ls", "-al").Run()
+		exec.Command("sleep", "1").Run()
 		fmt.Println("finish command!!!")
-		close(channel)
+		channel <- nil
 	}()
 
 	go func() {
 		time.Sleep(time.Second * 1)
 		fmt.Println("finish sleep!!!")
-		close(channel)
+		channel <- nil
 	}()
 
 	<-channel
